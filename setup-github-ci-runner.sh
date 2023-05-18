@@ -14,7 +14,7 @@ curl -o actions-runner-linux-x64-2.304.0.tar.gz -L https://github.com/actions/ru
 tar xzf ./actions-runner-linux-x64-2.304.0.tar.gz
 
 token=$(cat $TOKEN_FILE)
-./config.sh --url https://github.com/utah-scs/monster --token $token --unattended
+./config.sh --url https://github.com/utah-scs/monster --token $token --unattended --replace
 sudo ./svc.sh install
 sudo ./svc.sh start
 
