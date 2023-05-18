@@ -5,6 +5,7 @@ set -e
 REPO=https://github.com/utah-scs/monster
 TOKEN_FILE=/proj/sandstorm-PG0/.github-ci-runner-token
 
+umask 002
 cd /local
 mkdir actions-runner
 chmod 770 actions-runner
