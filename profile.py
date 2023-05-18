@@ -11,17 +11,24 @@ import geni.portal as portal
 # Import the ProtoGENI library.
 import geni.rspec.pg as pg
 
+image = 'UBUNTU22-64-STD'
+node_type = 'xl170'
+
 # Create a portal context.
 pc = portal.Context()
 
 # Create a Request object to start building the RSpec.
 request = pc.makeRequestRSpec()
  
-# Add a raw PC to the request.
-node = request.RawPC("node")
+names = ['client', 'server']
+for name in names:
+    node = request.RawPC(name)
+    node.hardware_type = node_type
+    node.disk_image = image
+    node.addService(pg.Execute(shell="sh", command="/local/repository/setup-ssh.sh"))
+    nodes[name] = node
 
-# Install and execute a script that is contained in the repository.
-node.addService(pg.Execute(shell="sh", command="/local/repository/silly.sh"))
+nodes[client].addService(pg.Execute(shell="sh", command="/local/repository/setup-github-ci-runner.sh"))
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
