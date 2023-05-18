@@ -1,6 +1,6 @@
-"""This is a trivial example of a gitrepo-based profile; The profile source code and other software, documentation, etc. are stored in in a publicly accessible GIT repository (say, github.com). When you instantiate this profile, the repository is cloned to all of the nodes in your experiment, to `/local/repository`. 
+"""Allocates a client and server node, sets up passwordless SSH between them, and then installs/starts the Github CI runner on the client
 
-This particular profile is a simple example of using a single raw PC. It can be instantiated on any cluster; the node will boot the default operating system, which is typically a recent version of Ubuntu.
+Uses a fixed node type and image to automate as much as possible to streamline CI runs.
 
 Instructions:
 Wait for the profile instance to start, then click on the node in the topology and choose the `shell` menu item. 
@@ -11,7 +11,8 @@ import geni.portal as portal
 # Import the ProtoGENI library.
 import geni.rspec.pg as pg
 
-image = 'UBUNTU22-64-STD'
+# image list here: https://www.cloudlab.us/images.php
+image = 'urn:publicid:IDN+emulab.net+image+emulab-ops:UBUNTU22-64-STD'
 node_type = 'xl170'
 
 # Create a portal context.
@@ -21,14 +22,23 @@ pc = portal.Context()
 request = pc.makeRequestRSpec()
  
 names = ['client', 'server']
+nodes = {}
 for name in names:
     node = request.RawPC(name)
+
     node.hardware_type = node_type
     node.disk_image = image
+
+    # This step isn't needed on repo-based CloudLab profiles since the repo is automatically
+    # cloned on each machine, but this line can be added to use this repo with a regular
+    # CloudLab profile.
+    #node.addService(pg.Execute(shell="sh", command="git clone https://github.com/utah-scs/cxl-monster-ci.git /local/repository"))
+
     node.addService(pg.Execute(shell="sh", command="/local/repository/setup-ssh.sh"))
+
     nodes[name] = node
 
-nodes[client].addService(pg.Execute(shell="sh", command="/local/repository/setup-github-ci-runner.sh"))
+nodes['client'].addService(pg.Execute(shell="sh", command="/local/repository/setup-github-ci-runner.sh"))
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
